@@ -7,13 +7,14 @@ from webdriver_manager.chrome import ChromeDriverManager
 import streamlit as st
 import matplotlib.pyplot as plt
 
-# Function to initialize the Selenium Chrome driver in headless mode
+# Cache the driver instance with st.cache_resource
+@st.cache_resource
 def init_driver():
     options = Options()
     options.headless = True  # Ensure headless mode is enabled
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
-    options.add_argument('--disable-gpu')  # Disable GPU in case you are running on Linux
+    options.add_argument('--disable-gpu')  # Disable GPU for compatibility in some environments
     return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
 # Function to search company by name using Selenium and BeautifulSoup
