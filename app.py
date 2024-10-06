@@ -8,14 +8,14 @@ import streamlit as st
 import matplotlib.pyplot as plt
 
 # Cache the driver instance with st.cache_resource
-@st.cache_resource
 def init_driver():
     options = Options()
-    options.headless = True  # Ensure headless mode is enabled
+    options.headless = True
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
-    options.add_argument('--disable-gpu')  # Disable GPU for compatibility in some environments
+    options.add_argument('--disable-gpu')
     return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+
 
 # Function to search company by name using Selenium and BeautifulSoup
 def search_company_by_name(company_name):
@@ -96,7 +96,6 @@ def scrape_company_data(org_number, company_name):
     else:
         return f"Failed to retrieve the webpage. Status code: {response.status_code}"
 
-# Function to plot the ratios
 def plot_ratios(ratios_data):
     years = []
     turnover = []
@@ -132,6 +131,7 @@ def plot_ratios(ratios_data):
     ax.legend()
 
     return fig
+
 
 # Streamlit app
 st.title('Company Search and Financial Data Scraper')
@@ -200,8 +200,18 @@ if st.session_state.selected_company_data is not None:
             with col2:
                 if 'Ratios' in company_data:
                     st.write("**Ratios**")
-                    table_data = [["Year", "Turnover", "Res. e. fin"]] + [[year, f"{ratio_values[0]} KSEK", f"{ratio_values[1]} KSEK"] for year, ratio_values in company_data['Ratios'].items()]
+                    
+                    # Create the table with formatted values
+                    table_data = [["Year", "Turnover", "Res. e. fin"]] + [
+                        [year, 
+                        f"{int(float(ratio_values[0].replace(' KSEK', '').replace(',', '').replace(' ', ''))):,} KSEK".replace(',', ' '),
+                        f"{int(float(ratio_values[1].replace(' KSEK', '').replace(',', '').replace(' ', ''))):,} KSEK".replace(',', ' ')]
+                        for year, ratio_values in company_data['Ratios'].items()
+                    ]
+                    
+                    # Display the table
                     st.table(table_data)
+
 
             if 'Ratios' in company_data:
                 st.write("**Ratios Plot:**")
